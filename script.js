@@ -16,6 +16,9 @@ let book = {
   read: true,
 };
 myLibrary.push(book);
+// for (let i = 0; i < 30; i++) {
+//   myLibrary.push(book);
+// }
 
 let submitButton = document.querySelector(`.submitButton`);
 submitButton.addEventListener(`click`, addBookToLibrary);
@@ -26,32 +29,51 @@ addButton.addEventListener(`click`, showForm);
 let displayButton = document.querySelector(`.displayButton`);
 displayButton.addEventListener(`click`, displayBooks);
 
-function showForm() {
-  let showFormButton = document.querySelector(".showFormButton");
-  let bookForm = document.querySelector(".bookForm");
+let showFormButton = document.querySelector(".showFormButton");
+let bookForm = document.querySelector(".bookForm");
 
-  showFormButton.addEventListener("click", () => {
-    bookForm.style.display = "grid";
+showFormButton.addEventListener("click", () => {
+  bookForm.style.display = "grid";
+  document.body.style.overflow = "hidden";
+});
+
+function showForm() {
+  window.addEventListener("click", function (e) {
+    if (!bookForm.contains(e.target) && e.target != showFormButton) {
+      bookForm.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
   });
+
+  resetForm();
 }
 
 function addBookToLibrary(e) {
+  e.preventDefault();
   let title = document.querySelector(`#title`).value;
   let author = document.querySelector(`#author`).value;
   let pages = document.querySelector(`#pages`).value;
-  let readValue = document.querySelector(`#read`).value;
-  let read = ` `;
-  if (readValue == `on`) {
-    read = `Yes`;
-  } else {
-    read = `No`;
+  let readCheckbox = document.querySelector(`#read`);
+  let readValue = readCheckbox.checked ? "yes" : "no";
+  let titleExists = myLibrary.some((book) => book.title === title);
+  if (title.trim() === "") {
+    alert("Title cannot be empty or only contain spaces");
+    return;
   }
-  let book = new Book(title, author, pages, read);
+  if (author.trim() === "") {
+    alert("Author cannot be empty or only contain spaces");
+    return;
+  }
+  if (titleExists) {
+    alert("Book with same title already exists in library!");
+    return;
+  }
+  let book = new Book(title, author, pages, readValue);
   myLibrary.push(book);
   let bookForm = document.querySelector(".bookForm");
   bookForm.style.display = "none";
+
   resetForm();
-  e.preventDefault();
 }
 
 function resetForm() {
@@ -83,11 +105,25 @@ function displayBooks() {
     let readDiv = document.createElement("div");
     readDiv.className = `read`;
     readDiv.textContent = read;
+    let delButton = document.createElement("button");
+    delButton.className = `delButton`;
+    delButton.textContent = `delete`;
+    delButton.addEventListener(`click`, deleteCard);
 
     div.appendChild(titleDiv);
     div.appendChild(authorDiv);
     div.appendChild(pagesDiv);
     div.appendChild(readDiv);
+    div.appendChild(delButton);
     container.appendChild(div);
   }
+}
+
+function deleteCard(e) {
+  let delButton = e.target;
+  let container = document.querySelector(`.container`);
+  let cardContainer = delButton.closest(".cardContainer");
+  container.removeChild(cardContainer);
+  let index = Array.from(container.children).indexOf(cardContainer);
+  myLibrary.splice(index, 1);
 }
