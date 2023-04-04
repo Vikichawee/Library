@@ -116,20 +116,20 @@ function displayBooks() {
     readDiv.className = `read`;
     readDiv.textContent = read;
     if (readDiv.textContent == `Read`) {
-      readDiv.style.backgroundColor = "green";
+      readDiv.style.backgroundColor = "#D3FF5C";
     } else {
-      readDiv.style.backgroundColor = "red";
+      readDiv.style.backgroundColor = "#F15558";
     }
     readDiv.addEventListener(`click`, () => {
       if (readDiv.textContent == `Read`) {
         readDiv.textContent = `Not Read`;
-        readDiv.style.backgroundColor = "red";
+        readDiv.style.backgroundColor = "#F15558";
         book.read = `Not Read`;
         return;
       }
       if (readDiv.textContent == `Not Read`) {
         readDiv.textContent = `Read`;
-        readDiv.style.backgroundColor = "green";
+        readDiv.style.backgroundColor = "#D3FF5C";
         book.read = `Read`;
         return;
       }
