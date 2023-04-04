@@ -26,22 +26,29 @@ submitButton.addEventListener(`click`, addBookToLibrary);
 let addButton = document.querySelector(`.showFormButton`);
 addButton.addEventListener(`click`, showForm);
 
-let displayButton = document.querySelector(`.displayButton`);
-displayButton.addEventListener(`click`, displayBooks);
-
 let showFormButton = document.querySelector(".showFormButton");
 let bookForm = document.querySelector(".bookForm");
 
+let container = document.querySelector(`.container`);
+
 showFormButton.addEventListener("click", () => {
   bookForm.style.display = "grid";
+  setTimeout(() => {
+    bookForm.classList.add("show");
+  }, 100);
   document.body.style.overflow = "hidden";
+
+  container.classList.add(`blur`);
 });
 
 function showForm() {
   window.addEventListener("click", function (e) {
     if (!bookForm.contains(e.target) && e.target != showFormButton) {
       bookForm.style.display = "none";
+      bookForm.classList.remove(`show`);
       document.body.style.overflow = "auto";
+
+      container.classList.remove(`blur`);
     }
   });
 
@@ -54,7 +61,7 @@ function addBookToLibrary(e) {
   let author = document.querySelector(`#author`).value;
   let pages = document.querySelector(`#pages`).value;
   let readCheckbox = document.querySelector(`#read`);
-  let readValue = readCheckbox.checked ? "yes" : "no";
+  let readValue = readCheckbox.checked ? "Read" : "Not Read";
   let titleExists = myLibrary.some((book) => book.title === title);
   if (title.trim() === "") {
     alert("Title cannot be empty or only contain spaces");
@@ -72,8 +79,12 @@ function addBookToLibrary(e) {
   myLibrary.push(book);
   let bookForm = document.querySelector(".bookForm");
   bookForm.style.display = "none";
+  bookForm.classList.remove(`show`);
+  document.body.style.overflow = "auto";
+  container.classList.remove(`blur`);
 
   resetForm();
+  displayBooks();
 }
 
 function resetForm() {
@@ -84,7 +95,6 @@ function resetForm() {
 }
 
 function displayBooks() {
-  let container = document.querySelector(`.container`);
   document.querySelectorAll(".cardContainer").forEach((el) => el.remove());
   for (const book of myLibrary) {
     let div = document.createElement("div");
@@ -105,16 +115,40 @@ function displayBooks() {
     let readDiv = document.createElement("div");
     readDiv.className = `read`;
     readDiv.textContent = read;
+    if (readDiv.textContent == `Read`) {
+      readDiv.style.backgroundColor = "green";
+    } else {
+      readDiv.style.backgroundColor = "red";
+    }
+    readDiv.addEventListener(`click`, () => {
+      if (readDiv.textContent == `Read`) {
+        readDiv.textContent = `Not Read`;
+        readDiv.style.backgroundColor = "red";
+        book.read = `Not Read`;
+        return;
+      }
+      if (readDiv.textContent == `Not Read`) {
+        readDiv.textContent = `Read`;
+        readDiv.style.backgroundColor = "green";
+        book.read = `Read`;
+        return;
+      }
+    });
     let delButton = document.createElement("button");
     delButton.className = `delButton`;
-    delButton.textContent = `delete`;
+    delButton.textContent = `X`;
     delButton.addEventListener(`click`, deleteCard);
+    let pagesCount = document.createElement("div");
+    pagesCount.className = `pagesText`;
+    pagesCount.textContent = `Pages:`;
 
     div.appendChild(titleDiv);
     div.appendChild(authorDiv);
+    div.appendChild(pagesCount);
     div.appendChild(pagesDiv);
     div.appendChild(readDiv);
     div.appendChild(delButton);
+
     container.appendChild(div);
   }
 }
@@ -124,6 +158,6 @@ function deleteCard(e) {
   let container = document.querySelector(`.container`);
   let cardContainer = delButton.closest(".cardContainer");
   container.removeChild(cardContainer);
-  let index = Array.from(container.children).indexOf(cardContainer);
-  myLibrary.splice(index, 1);
+  let title = cardContainer.querySelector(".title").textContent;
+  myLibrary = myLibrary.filter((book) => book.title != title);
 }
